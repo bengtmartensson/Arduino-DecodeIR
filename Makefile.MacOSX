@@ -1,0 +1,11 @@
+NAME=DecodeIR
+JAVA_INCLUDE=/System/Library/Frameworks/JavaVM.framework/Versions/1.6.0/Home
+INCLUDES=-I$(JAVA_INCLUDE)/include -I$(JAVA_INCLUDE)/lib -Icom/hifiremote/decodeir
+
+all:	lib$(NAME).jnilib
+
+clean:
+	rm lib$(NAME).jnilib
+
+lib$(NAME).jnilib:	$(NAME).cpp
+	g++ -shared -fPIC -arch ppc -o $@ $(INCLUDES) $?

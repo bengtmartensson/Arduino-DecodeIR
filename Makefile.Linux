@@ -1,0 +1,11 @@
+NAME=DecodeIR
+JAVA_INCLUDE=/usr/lib/jvm/java-6-sun/include
+INCLUDES=-I$(JAVA_INCLUDE) -I$(JAVA_INCLUDE)/linux -Icom/hifiremote/decodeir
+
+all:	lib$(NAME).so
+
+clean:
+	rm lib$(NAME).so
+
+lib$(NAME).so:	$(NAME).cpp
+	g++ -shared -fPIC -o $@ $(INCLUDES) $?

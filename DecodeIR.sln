@@ -1,0 +1,23 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 10.00
+# Visual C++ Express 2008
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DecodeIR", "DecodeIR.vcproj", "{A8093499-EB47-4F1B-9D0E-2C92FFCA4E52}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+		Vtune|Win32 = Vtune|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{A8093499-EB47-4F1B-9D0E-2C92FFCA4E52}.Debug|Win32.ActiveCfg = Debug|Win32
+		{A8093499-EB47-4F1B-9D0E-2C92FFCA4E52}.Debug|Win32.Build.0 = Debug|Win32
+		{A8093499-EB47-4F1B-9D0E-2C92FFCA4E52}.Release|Win32.ActiveCfg = Release|Win32
+		{A8093499-EB47-4F1B-9D0E-2C92FFCA4E52}.Release|Win32.Build.0 = Release|Win32
+		{A8093499-EB47-4F1B-9D0E-2C92FFCA4E52}.Vtune|Win32.ActiveCfg = Vtune|Win32
+		{A8093499-EB47-4F1B-9D0E-2C92FFCA4E52}.Vtune|Win32.Build.0 = Vtune|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

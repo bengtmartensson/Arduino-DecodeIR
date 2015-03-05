@@ -1,0 +1,11 @@
+; DecodeIR.DEF : Declares the module parameters for the DLL.
+
+LIBRARY      DecodeIR
+; DESCRIPTION  'DecodeIR Windows Dynamic Link Library'
+
+EXPORTS
+; Explicit exports go here
+DecodeIR
+EnumerateProtocols
+ProtocolSupportLevel
+Version
