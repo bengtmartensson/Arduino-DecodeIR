@@ -1,19 +1,19 @@
+# This Makefile is used to create an executable on a Unix-like system.
+# It is not used for builing on the Arduino.
+
 NAME=DecodeIR
-JAVA_INCLUDE=/usr/lib/jvm/java-6-sun/include
-INCLUDES=-I$(JAVA_INCLUDE) -I$(JAVA_INCLUDE)/linux -Icom/hifiremote/decodeir
 CC=g++
-#WARN=-Wall -Wextra
+WARN=-Wall -Wextra
 OPT=-O2
 
 all: test
 
 VPATH=src
 OBJS = $(NAME).o main.o	
-	
 
 clean:
 	rm -f decoder $(OBJS)
-	
+
 %.o: %.cpp
 	$(CC) -g $(WARN) $(OPT) -c $<
 

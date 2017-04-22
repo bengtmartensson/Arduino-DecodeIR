@@ -1,3 +1,10 @@
+// Copying and distribution of this file, with or without modification,
+// are permitted in any medium without royalty provided the copyright
+// notice and this notice are preserved.  This file is offered as-is,
+// without any warranty.
+
+// Author: Bengt Martensson
+
 #ifndef ARDUINO
 #include "DecodeIR.h"
 #include <iostream>
@@ -8,7 +15,6 @@ void usage(const char* name) {
 }
 
 int main(int argc, char* argv[]) {
-    //sleep(20);
     if (argc < 5)
         usage(argv[0]);
     

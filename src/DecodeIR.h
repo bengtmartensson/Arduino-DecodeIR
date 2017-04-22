@@ -1,3 +1,8 @@
+// Copying and distribution of this file, with or without modification,
+// are permitted in any medium without royalty provided the copyright
+// notice and this notice are preserved.  This file is offered as-is,
+// without any warranty.
+
 #ifndef _DECODE_IR_H
 #define _DECODE_IR_H
 
@@ -14,13 +19,12 @@
 #pragma warning(disable:4996) // Suppress warnings of deprecated functions
 #endif
 
-
-
 #include <stdint.h>
 #include <string.h>
 #include <stdio.h>
 #include <math.h>
 
+// These can be changed, should the need arise. However, this will change the API.
 typedef uint16_t frequency_t;
 typedef uint16_t microseconds_t;
 
