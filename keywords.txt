@@ -1,0 +1,23 @@
+#######################################
+# Syntax Coloring Map For DecodeIR
+# Only public stuff go here.
+#######################################
+
+#######################################
+# Classes (KEYWORD1)
+#######################################
+
+frequency_t		KEYWORD1
+microseconds_t		KEYWORD1	
+
+#######################################
+# public Methods and Functions (KEYWORD2)
+#######################################
+DecodeIR		KEYWORD2
+decodePrintIr		KEYWORD2
+
+#######################################
+# Constants (LITERAL1)
+#######################################
+
+DEFAULT_FREQUENCY	LITERAL1
