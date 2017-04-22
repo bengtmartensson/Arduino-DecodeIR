@@ -30,7 +30,7 @@ static char const version_cstr[] = "2.45";
 
 Signal::Signal(
         uint32_t* p_Context,
-        microseconds_t* p_Bursts,
+        const microseconds_t* p_Bursts,
         frequency_t n_Freq,
         uint16_t n_Single,
         uint16_t n_Repeat,
@@ -5414,7 +5414,7 @@ void DecodeIR_API DecodeIR
         //decode the signal, and on output the context it would need to decode the next part of the signal.
         //It has a minimum length of 2, and on first call, both integers are 0.  Further information can
         //be passed in either direction by increasing its length.  See TiSubDevice below.
-        microseconds_t* TpaiBursts, //In - Array of integers containing the burst lengths in microseconds, 
+        const microseconds_t* TpaiBursts, //In - Array of integers containing the burst lengths in microseconds, 
         //the length of the array is 2*(TiSingleBurstCount + TiRepeatBurstCount +
         //ExtraBurstCount), where ExtraBurstCount is carried in TiDevice, see below.
         frequency_t TiFreq, //In - Frequency in Hz of the signal.  Use -1 for unknown.  Any positive

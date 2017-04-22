@@ -59,7 +59,7 @@ const CString m_AuxNotes[] = {
 //extern "C" {
 void DecodeIR_API DecodeIR
 (uint32_t* Context,
-        microseconds_t * TpaiBursts,
+        const microseconds_t * TpaiBursts,
         frequency_t TiFreq,
         uint16_t TiSingleBurstCount,
         uint16_t TiRepeatBurstCount,
@@ -357,7 +357,7 @@ enum {
 struct Signal {
     Signal(
             uint32_t* p_Context,
-            microseconds_t* p_Bursts,
+            const microseconds_t* p_Bursts,
             frequency_t n_Freq,
             uint16_t n_Single,
             uint16_t n_Repeat,
