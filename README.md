@@ -23,7 +23,9 @@ be functionally equivalent. The main changes necessary was to use the C99
 portable types (like `uint32_t` etc.) instead of the, per definition, non-portable
 types like `int` and `char`. Somewhat simplified, most `int`s have been replaced
 by `int32_t`, `unsigned int`s by `uint32_t`, and `char`s (used as numbers) by
-`uint8_t`.  
+`uint8_t`.
+Also the dependence of std::set has been removed.
+It was the only dependence of the standard C++ library.)
 
 ## API
 The main file DecodeIR[h,cpp] has a single public entry point, `DecodeIR(...)`,
