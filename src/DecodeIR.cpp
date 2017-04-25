@@ -19,6 +19,7 @@
 #define LPVOID void *
 #define strnicmp strncasecmp
 #else
+#include "StdAfx.h" 
 #include "JNI.h"
 #endif
 
@@ -5470,23 +5471,25 @@ void DecodeIR_API DecodeIR
 }
 
 #ifdef USE_JNI
-//extern "C" {
+extern "C" {
 
 JNIEXPORT jstring JNICALL
-Java_com_hifiremote_decodeir_DecodeIRCaller_getVersion(JNIEnv *env, jobject obj) {
-    return env->NewStringUTF(version_cstr);
+Java_com_hifiremote_decodeir_DecodeIRCaller_getVersion(JNIEnv *env, jobject obj)
+{
+  return env->NewStringUTF( version_cstr );
 }
 
-#define MSGBUF_SIZE 256
+#define MSGBUF_SIZE	256
 
 jboolean JNU_SetString(JNIEnv *env, jobject obj,
-        const char *fieldName, char *val) {
+			const char *fieldName, char *val)
+{
     jclass cls;
     jfieldID fid;
     jstring jstr;
 
     cls = env->GetObjectClass(obj);
-    fid = env->GetFieldID(cls, fieldName, "Ljava/lang/String;");
+  fid = env->GetFieldID( cls, fieldName, "Ljava/lang/String;");
     if (fid == NULL)
         return JNI_FALSE;
 
@@ -5499,7 +5502,8 @@ jboolean JNU_SetString(JNIEnv *env, jobject obj,
 }
 
 jboolean JNU_SetInt(JNIEnv *env, jobject obj,
-        const char *fieldName, jint val) {
+		const char *fieldName, jint val)
+{
     jclass cls;
     jfieldID fid;
 
@@ -5513,7 +5517,8 @@ jboolean JNU_SetInt(JNIEnv *env, jobject obj,
 }
 
 jobject JNU_GetObject(JNIEnv *env, jobject obj,
-        const char *className, const char *fieldName) {
+		 const char *className, const char *fieldName)
+{
     jclass cls;
     jfieldID fid;
 
@@ -5530,40 +5535,43 @@ Java_com_hifiremote_decodeir_DecodeIRCaller_decode(JNIEnv *env, jobject obj,
         jintArray jctx,
         jintArray jbursts,
         jint repeatPart,
-        jint freq) {
-    int32_t device;
-    int32_t subDevice;
-    int32_t OBC;
-    int32_t hex[4];
+			   jint freq )
+{
+    int device;
+    int subDevice;
+    int OBC;
+    int hex[4];
     char TsProtocol[MSGBUF_SIZE];
     char TsMisc[MSGBUF_SIZE];
     char TsError[MSGBUF_SIZE];
 
-    if (env->GetArrayLength(jctx) < 2) {
+    if ( env->GetArrayLength( jctx ) < 2 )
+    {
         return JNI_FALSE;
     }
 
-    jsize nElements = env->GetArrayLength(jbursts);
-    if (nElements < MinFrame) {
+    jsize nElements = env->GetArrayLength( jbursts );
+    if ( nElements < MinFrame )
+    {
         return JNI_FALSE;
     }
 
-    jint* c_ctx = env->GetIntArrayElements(jctx, 0);
-    jint* c_bursts = env->GetIntArrayElements(jbursts, 0);
+    jint* c_ctx = env->GetIntArrayElements( jctx, 0 );
+    jint* c_bursts = env->GetIntArrayElements( jbursts, 0 );
 
 
     device = subDevice = OBC = -1;
-    memset(hex, -1, sizeof (hex));
+    memset(hex, -1, sizeof(hex));
     memset(TsProtocol, 0, sizeof TsProtocol);
     memset(TsMisc, 0, sizeof TsMisc);
     memset(TsError, 0, sizeof TsError);
 
     DecodeIR(
-            (uint32_t*) c_ctx,
-            (int32_t*) c_bursts,
-            freq,
-            (nElements - repeatPart) / 2,
-            repeatPart / 2,
+       (unsigned int*)c_ctx,
+       (const unsigned int*)c_bursts,
+           freq,
+       (nElements-repeatPart)/2,
+       repeatPart/2,
             TsProtocol,
             &device,
             &subDevice,
@@ -5572,16 +5580,18 @@ Java_com_hifiremote_decodeir_DecodeIRCaller_decode(JNIEnv *env, jobject obj,
             TsMisc,
             TsError);
 
-    env->ReleaseIntArrayElements(jctx, c_ctx, 0); // Write back if necessary
-    env->ReleaseIntArrayElements(jbursts, c_bursts, JNI_ABORT); // No write back (nothing was changed)
+    env->ReleaseIntArrayElements( jctx, c_ctx, 0 );  // Write back if necessary
+    env->ReleaseIntArrayElements( jbursts, c_bursts, JNI_ABORT );  // No write back (nothing was changed)
 
-    if (TsProtocol[0] == 0) {
+    if ( TsProtocol[0] == 0 )
+    {
         return JNI_FALSE;
     }
 
-    jintArray joField = (jintArray) JNU_GetObject(env, obj, "[I", "hex");
-    if (joField != 0) {
-        env->SetIntArrayRegion(joField, 0, 4, (jint*) hex);
+    jintArray joField = (jintArray)JNU_GetObject(env, obj, "[I", "hex");
+    if ( joField != 0 )
+    {
+        env->SetIntArrayRegion(joField, 0, 4, (jint*)hex);
     }
 
     return
@@ -5600,45 +5610,51 @@ Java_com_hifiremote_decodeir_DecodeIRCaller_decode2(JNIEnv *env, jobject obj,
         jintArray jbursts,
         jint repeatPart,
         jint extraPart,
-        jint freq) {
-    int32_t device;
-    int32_t subDevice;
-    int32_t OBC;
-    int32_t hex[4];
+			   jint freq )
+{
+    int device;
+    int subDevice;
+    int OBC;
+    int hex[4];
     char TsProtocol[MSGBUF_SIZE];
     char TsMisc[MSGBUF_SIZE];
     char TsError[MSGBUF_SIZE];
 
-    if (env->GetArrayLength(jctx) < 2) {
+    if ( env->GetArrayLength( jctx ) < 2 )
+    {
         return JNI_FALSE;
     }
 
-    jsize nElements = env->GetArrayLength(jbursts);
-    if (nElements < MinFrame) {
+    jsize nElements = env->GetArrayLength( jbursts );
+    if ( nElements < MinFrame )
+    {
         return JNI_FALSE;
     }
 
-    jint* c_ctx = env->GetIntArrayElements(jctx, 0);
-    jint* c_bursts = env->GetIntArrayElements(jbursts, 0);
+    jint* c_ctx = env->GetIntArrayElements( jctx, 0 );
+    jint* c_bursts = env->GetIntArrayElements( jbursts, 0 );
 
     device = subDevice = OBC = -1;
-    memset(hex, -1, sizeof (hex));
+    memset(hex, -1, sizeof(hex));
     memset(TsProtocol, 0, sizeof TsProtocol);
     memset(TsMisc, 0, sizeof TsMisc);
     memset(TsError, 0, sizeof TsError);
 
-    if (repeatPart == 0) {
+	if ( repeatPart == 0 )
+	{
         device = -2;
-    } else if (extraPart > 0) {
-        device = -(extraPart / 2);
     }
+	else if ( extraPart > 0 )
+	{
+		device = - ( extraPart/2 );
+	}
 
     DecodeIR(
-            (uint32_t*) c_ctx,
-            (int32_t*) c_bursts,
+       (unsigned int*)c_ctx,
+       (const unsigned int*)c_bursts,
             freq,
-            (nElements - repeatPart - extraPart) / 2,
-            repeatPart / 2,
+       (nElements-repeatPart-extraPart)/2,
+       repeatPart/2,
             TsProtocol,
             &device,
             &subDevice,
@@ -5647,16 +5663,18 @@ Java_com_hifiremote_decodeir_DecodeIRCaller_decode2(JNIEnv *env, jobject obj,
             TsMisc,
             TsError);
 
-    env->ReleaseIntArrayElements(jctx, c_ctx, 0); // Write back if necessary
-    env->ReleaseIntArrayElements(jbursts, c_bursts, JNI_ABORT); // No write back (nothing was changed)
+    env->ReleaseIntArrayElements( jctx, c_ctx, 0 );  // Write back if necessary
+    env->ReleaseIntArrayElements( jbursts, c_bursts, JNI_ABORT );  // No write back (nothing was changed)
 
-    if (TsProtocol[0] == 0) {
+    if ( TsProtocol[0] == 0 )
+    {
         return JNI_FALSE;
     }
 
-    jintArray joField = (jintArray) JNU_GetObject(env, obj, "[I", "hex");
-    if (joField != 0) {
-        env->SetIntArrayRegion(joField, 0, 4, (jint*) hex);
+    jintArray joField = (jintArray)JNU_GetObject(env, obj, "[I", "hex");
+    if ( joField != 0 )
+    {
+        env->SetIntArrayRegion(joField, 0, 4, (jint*)hex);
     }
 
     return
@@ -5669,5 +5687,5 @@ Java_com_hifiremote_decodeir_DecodeIRCaller_decode2(JNIEnv *env, jobject obj,
             && JNU_SetString(env, obj, "errorMessage", TsError);
 
 }
-//}
+} // extern "C"
 #endif // USE_JNI

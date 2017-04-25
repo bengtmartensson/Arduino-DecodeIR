@@ -3,7 +3,7 @@
 
 NAME=DecodeIR
 CC=g++
-WARN=-Wall -Wextra
+#WARN=-Wall -Wextra
 OPT=-O2
 
 all: test

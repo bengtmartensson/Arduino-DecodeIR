@@ -6,6 +6,10 @@
 #ifndef _DECODE_IR_H
 #define _DECODE_IR_H
 
+#ifndef ARDUINO
+//#define USE_JNI
+#endif
+
 #ifndef _MSC_VER
 #define DecodeIR_API
 #define _stdcall
@@ -24,9 +28,13 @@
 #include <stdio.h>
 #include <math.h>
 
-// These can be changed, should the need arise. However, this will change the API.
+#ifdef USE_JNI
+typedef unsigned frequency_t;
+typedef unsigned microseconds_t;
+#else
 typedef uint16_t frequency_t;
 typedef uint16_t microseconds_t;
+#endif
 
 #define require(x) if (!(x)) { return; }
 
@@ -56,7 +64,6 @@ const CString m_AuxNotes[] = {
         "  Incomplete signal: end frame with no preceding frames."};
  */
 
-//extern "C" {
 void DecodeIR_API DecodeIR
 (uint32_t* Context,
         const microseconds_t * TpaiBursts,
@@ -76,9 +83,6 @@ int32_t _stdcall ProtocolSupportLevel(char * TsProtocol);
 void _stdcall EnumerateProtocols(int32_t iProtocolNumber, char* TsProtocol);
 
 void _stdcall Version(char *Result);
-//};
-
-//using namespace std;
 
 typedef float* burst;
 
