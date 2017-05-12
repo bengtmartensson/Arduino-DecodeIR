@@ -30,5 +30,6 @@ void loop() {
     else {
         IrSequence *irSequence = receiver->toIrSequence();
         decodePrintIr(Serial, irSequence->getDurations(), irSequence->getLength()/2);
+        delete irSequence;
     }
 }
