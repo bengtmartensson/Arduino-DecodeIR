@@ -7,6 +7,9 @@
 
 #ifndef ARDUINO
 #include "DecodeIR.h"
+#if USECLASS
+#include "DecodeIRClass.h"
+#endif
 #include <iostream>
 
 void usage(const char* name) {
@@ -39,6 +42,15 @@ int main(int argc, char* argv[]) {
         sscanf(argv[i++], "%x", &ncycles);
         data[j] = (int) ((1000000.0 / frequency * ncycles)/* + 0.5*/);
     }
+#if USECLASS
+    DecodeIRClass decoder(data, 2 * (intro_length + rep_length), frequency);
+    if (decoder.getProtocol()[0] != '\0')
+        std::cout
+            << decoder.getString1() << std::endl
+            << decoder.getString2() << std::endl;
+    else
+        std::cout << "No decode" << std::endl;
+#else // !USECLASS
     uint32_t decodeir_context[2] = {0, 0};
     char protocol[255] = "";
     int32_t device = (uint32_t) -1;
@@ -67,6 +79,7 @@ int main(int argc, char* argv[]) {
                 << " misc=" << misc_message
                 << " error=" << error_message << "\n";
     }
+#endif
 }
 
-#endif // ARDUINO
+#endif // ! ARDUINO

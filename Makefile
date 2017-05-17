@@ -2,20 +2,25 @@
 # It is not used for builing on the Arduino.
 
 NAME=DecodeIR
+OBJS = $(NAME).o main.o
+
+# Include the following if using the class wrapper
+INCLUDES=-I../Infrared4Arduino/src/
+DEFINES=-DUSECLASS
+OBJS += DecodeIRClass.o
+
+VPATH=src
 CC=g++
 #WARN=-Wall -Wextra
 OPT=-O2
 
 all: test
 
-VPATH=src
-OBJS = $(NAME).o main.o	
-
 clean:
 	rm -f decoder $(OBJS)
 
 %.o: %.cpp
-	$(CC) -g $(WARN) $(OPT) -c $<
+	$(CC) $(DEFINES) $(INCLUDES) -g $(WARN) $(OPT) -c $<
 
 decoder: $(OBJS)
 	g++ -g $(WARN) $(OPT) -o $@ $(OBJS)
