@@ -1,5 +1,8 @@
 # This Makefile is used to create an executable on a Unix-like system.
 # It is not used for builing on the Arduino.
+# It needs https://github.com/bengtmartensson/Infrared4Arduino to be installed.
+# see the INCLUDES line below.
+# (This does not apply to the Arduino build of course.)
 
 NAME=DecodeIR
 OBJS = $(NAME).o main.o
