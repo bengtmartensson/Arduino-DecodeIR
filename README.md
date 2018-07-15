@@ -18,7 +18,7 @@ My version presently contains only the files relevant for the Arduino port.
 The other files (Java JNI interface, autoconfig files, Maven pom) are found in
 the original repository.
 
-The official documentation is contained here as the file [DecodeIR.html](DecodeIR.html).
+The official documentation is contained here as the file DecodeIR.html.
 
 ## Changes
 This project is a straight-forward port of DecodeIR 2.45. It is intended to
