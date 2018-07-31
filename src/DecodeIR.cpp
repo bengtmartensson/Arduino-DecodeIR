@@ -19,10 +19,20 @@
 #define LPVOID void *
 #define strnicmp strncasecmp
 #else
-#include "StdAfx.h" 
+#include "StdAfx.h"
 #include "JNI.h"
 #endif
 
+#ifdef __GNUC__
+// This is an old program that is not really maintained.
+// Therefore, turn on as many warnings as possible.
+// (The first one appears not to be observed by the current GCC version.)
+#pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
+#pragma GCC diagnostic ignored "-Wformat="
+#pragma GCC diagnostic ignored "-Wsign-compare"
+#pragma GCC diagnostic ignored "-Wparentheses"
+#pragma GCC diagnostic ignored "-Wunused-but-set-variable"
+#endif
 
 #define min(x, y) ((x) < (y) ? (x) : (y))
 #define max(x, y) ((x) > (y) ? (x) : (y))
@@ -72,7 +82,7 @@ pDuration(NULL) {
     // This is retained for compatibility, so a value of *pDevice , -1 is ignored unless
     // nRepeat > 0.
     nExtra = nRepeat > 0 && *pDevice < -1 ? - *pDevice : 0;
-    // Additional info can be provided or returned in Context[] if its length is carried in 
+    // Additional info can be provided or returned in Context[] if its length is carried in
     // pSubDevice and is > 2.  The maximum supported length is 18, due to the form of the
     // returned handshake.  See decode2() for details of the use of the additional fields.
     nContextLength = *pSubDevice < -1 ? - *pSubDevice : 2;
@@ -155,7 +165,7 @@ void Signal::decode() {
         &Signal::tryQ2,
         &Signal::tryDirecTV,
         &Signal::trySomfy,
-        &Signal::tryGap, // if this moves, change nGapProtocol value	
+        &Signal::tryGap, // if this moves, change nGapProtocol value
         &Signal::tryRC5,
         &Signal::tryRC6,
         &Signal::tryCanalSat, // GD 2009
@@ -468,7 +478,7 @@ void Signal::decode2() {
                 // required for an Async decode is 3 such Sony binary pairs.  So if a Sony
                 // decode is followed by such an Async decode then the Async probably comes
                 // from a truncated Sony frame. Skip the spurious decode and remove it from
-                // the count. 
+                // the count.
                 if (*pError == 0
                     && strncmp(xProtocol, "Sony", 4) == 0
                     && strncmp(pProtocol, "Async", 5) == 0
@@ -518,10 +528,10 @@ void Signal::decode2() {
         if (strcmp(xProtocol, "NEC") == 0
                 || strcmp(xProtocol, "NECx") == 0
                 || strcmp(xProtocol, "48-NEC") == 0) {
-            if (xFrameCount > 1 || nDittos == 0 && nRepeat > 6) { //nRepeat > 0 changed to nRepeat > 6  DAR Dec 2010 to avoid detecting faulty 
+            if (xFrameCount > 1 || nDittos == 0 && nRepeat > 6) { //nRepeat > 0 changed to nRepeat > 6  DAR Dec 2010 to avoid detecting faulty
                 strcat(xProtocol, "2"); //ditto(s) as NEC2. Anyway, NEC2 should have nRepeat == 34 if xFrame == 1
             }
-            strcat(xProtocol, pSuffix); //DAR Nov 2010 
+            strcat(xProtocol, pSuffix); //DAR Nov 2010
         } else if (strcmp(xProtocol, "JVC") == 0
                 && !xInitLeadIn) {
             strcat(xProtocol, "{2}");
@@ -867,7 +877,7 @@ void Signal::tryPid13()
         return;
     }
 
-    // GD 2009 Start: Add any trailing 0's concatenated with lead-out into 
+    // GD 2009 Start: Add any trailing 0's concatenated with lead-out into
     // nTotDur and re-test framing.  Eliminates spurious decodes of final
     // 2 frames of G.I.4DTV and probably others.
     float n = 7.f; // number of trailing 0's
@@ -887,8 +897,8 @@ void Signal::tryPid13()
 
 // Lutron uses a 40kHz carrier to send an asynchronous signal with 8 start bits,
 // 24 data bits and 4 stop bits.  The data bits are 6 4-bit values, each being
-// the encoding in reversed binary with odd parity of a 3-bit binary value.  The 
-// 18-bit sequence so encoded consists of an 8-bit device code, an 8-bit OBC and 
+// the encoding in reversed binary with odd parity of a 3-bit binary value.  The
+// 18-bit sequence so encoded consists of an 8-bit device code, an 8-bit OBC and
 // two even parity bits calculated pairwise, all sent msb.
 
 void Signal::tryLutron() {
@@ -922,7 +932,7 @@ void Signal::tryLutron() {
         if (!(getMsb(nBitCnt - 1, 1) == 1 && getMsb(nBitCnt, 8) == 0)) continue;
 
         // Do not rely on the length of the lead-in distinguishing correctly between it being
-        // 8,9,10 or 11 units, i.e. concatenated with 0 to 3 data 1-bits.  So loop through 
+        // 8,9,10 or 11 units, i.e. concatenated with 0 to 3 data 1-bits.  So loop through
         // the possibilities until we get a valid decode.
         for (int32_t nOnes = 0; bParityError && nOnes < 25 - nBitCnt; nOnes++) {
             // Store the 18-bit decode of the 24-bit data starting at cBits[4]
@@ -1013,7 +1023,7 @@ void Signal::tryGap() {
             // Need additional condition to cope with RCA(Old)
             && (nFrameL != 25 || sortOn.max1 != pFrame[48] || sortOn.max2 * 2. > sortBurst.min1 + sortOn.min1)
             // Allow longer On if may be part of NEC leadout-- for Onkyo signals with leadout On = 32/21*(ordinary On)
-            && (nFrameL != 33 || pFrame[65] < 30. * sortOn.min1 || sortOn.max1 * 1.5 > sortBurst.min1 + sortOn.min1)) //DAR Dec 2010 
+            && (nFrameL != 33 || pFrame[65] < 30. * sortOn.min1 || sortOn.max1 * 1.5 > sortBurst.min1 + sortOn.min1)) //DAR Dec 2010
         return;
 
     float nFrameLimit = sortBurst.max1 * 2 - sortBurst.min1;
@@ -1255,7 +1265,7 @@ no_lead2:
             //
             // sortBurst.max1 = nominal 10
             // sortBurst.max2 = nominal 4
-            // 
+            //
             if (lead_in(.7 * 10 / 10 * sortBurst.max1, // The initial 9,-9 must be >= 70% of a nominal 10
                     1.3 * 18 / 10 * sortBurst.max1, // The initial 9,-9 must be <= 130% of a nominal 18
                     1.3 * 9 / 10 * sortBurst.max1, // The initial 9 must be <= 130% of a nominal 9
@@ -1513,7 +1523,7 @@ no_lead2:
                 return;
             }
             // Thomson: OLD                 (D:4,T:1,D:1:5,F:6   OLD
-            // Thomson: {33k,500}<1,-4|1,-9>(D:4,T:1,F:7,1,^80m)+  NEW  DAR Dec 2010 
+            // Thomson: {33k,500}<1,-4|1,-9>(D:4,T:1,F:7,1,^80m)+  NEW  DAR Dec 2010
             //http://www.hifi-remote.com/forums/viewtopic.php?t=12522
             // 004B
             // max_data = 12*500*(1+9) = 60m
@@ -1552,7 +1562,7 @@ no_lead2:
                 syn = syn + (parity(W & 0x351));
                 //int32_t nC = cBits[0];  removed June 2012 DAR
                 //nC = nC ^ (nC<<4) ^ (nC<<1) ^ (nC>>2) ^ (nC>>4) ^ (nC>>5) ^ (nC>>6);
-                //int32_t nCC = cBits[1]*17; 
+                //int32_t nCC = cBits[1]*17;
                 if (syn == 0x00)
                     return;
                 else if (syn == 0x0F) {
@@ -1661,7 +1671,7 @@ no_lead2:
 
                 // If not yet confirmed as valid, check if other half-protocol frame precedes it
                 pBit = pFrame - 32; // Location of previous frame if there was one ?? use preempt instead
-                if (!(nSecond & 1) // If half-protocol not yet confirmed valid 
+                if (!(nSecond & 1) // If half-protocol not yet confirmed valid
                         && (pBit >= pDuration)) // If that location is valid
                 {
                     nBit = 16;
@@ -1724,7 +1734,7 @@ no_lead2:
                     1.3 * 18 / 7.75 * nMaxShort, .7 * 9 / 7.75 * nMaxShort, nMaxShort)) {
                 strcpy(pProtocol, "G.I. Cable");
                 // GD 2009 Code modified to report ditto count
-                /*	
+                /*
                 if (   pFrameEnd[1] < sortOn.max1*5		// Nominal 18:1
                         || pFrameEnd[2] > nMaxShort		// Nominal 4.5 : 225/32
                         || pFrameEnd[2]*2 < nMaxShort	// Nominal 9 : 225/32
@@ -1813,7 +1823,7 @@ no_lead2:
                 }
             }
 
-            //GI RG  {38.5k,1000,msb}<1,-1|1,-3>(5,-3,A:16,1,-47.0m) 
+            //GI RG  {38.5k,1000,msb}<1,-1|1,-3>(5,-3,A:16,1,-47.0m)
             // SIM2 {38.8k,400}<3,-3|3,-7>(6,-7,D:8,F:8,3,-60m)
             //
             if (sortOff.max1 > sortBurst.max1 * 0.56 && sortOff.max1 < 3500. && sortOff.max1 > 2300.) {
@@ -1953,7 +1963,7 @@ no_lead2:
                     pHex[0] = msb(255 - *pOBC, 8);
                     if (0xF - getLsb(0, 4) == getLsb(4, 4)) {
                         if (1.78 * sortBurst.mid1 > sortBurst.mid2) {
-                            strcpy(pProtocol, "Logitech"); // DAR 2012 
+                            strcpy(pProtocol, "Logitech"); // DAR 2012
                             *pDevice = getLsb(0, 4);
                         } else {
                             strcpy(pProtocol, "Kathrein"); // GD 2009 changed name from pid-0066
@@ -2154,14 +2164,14 @@ no_lead2:
                 float one = (cBits[0]&1) ? (sortOff.max1 * .25) : (sortOff.max1 * .75); // GD 2009 moved from below
 
                 if (lead_in(.8 * 8 / 3 * nMaxShort, 1.2 * 16 / 3 * nMaxShort, 1.2 * 8 / 3 * nMaxShort, .8 * 8 / 3 * nMaxShort, nMaxShort)) { // GD 2009 - Changes made to enable reporting of "ditto" repeats
-                    /* if */ while (pFullLimit > pFrameEnd + 6 // GD 2009 Added test on pFullLimit  
+                    /* if */ while (pFullLimit > pFrameEnd + 6 // GD 2009 Added test on pFullLimit
                             && pFrameEnd[1] + pFrameEnd[2] < 6 * sortOff.max1
                             && pFrameEnd[1] + pFrameEnd[2] > 4 * sortOff.max1
                             && pFrameEnd[2] > 2 * sortOff.max1
                             && pFrameEnd[3] < nMaxShort /* )
 					{
 						float one = (cBits[0]&1) ? (sortOff.max1*.25) : (sortOff.max1*.75);
-						if ( */ // GD 2009  Added && to concatenate with above conditionals 
+						if ( */ // GD 2009  Added && to concatenate with above conditionals
                             && pFrameEnd[4] > one
                             && pFrameEnd[4] < 2 * one
                             && pFrameEnd[5] < nMaxShort
@@ -2350,9 +2360,9 @@ no2:
             // 00CD:
             //
             // Teac-K {37.9k,432}<1,-1,1,-3>(8,-4,67:8,83:8,X:4,D:4,S:8,F:8,T:8,1,-100,(8,-8,1,-100)+
-            // 
+            //
             // Mitsubishi-K {35k,432}<1,-1,1,-3>(8,-4,35:8,203:8,X:4,D:8,S:8,F:8,T:4,1,-100)+
-            // 
+            //
             if (lead_in(.8 * 5 / 3 * nMaxShort, 1.2 * 12 / 3 * nMaxShort, 1.2 * 8 / 3 * nMaxShort, .8 * 4 / 3 * nMaxShort, nMaxShort)) {
                 int32_t xor1 = cBits[0] ^ cBits[1];
                 if ((((xor1 >> 4) ^ xor1 ^ cBits[2]) & 15) == 0) {
@@ -2718,7 +2728,7 @@ ok:
 void Signal::tryRC5()
 //
 // RC5         {36k,msb,889}<1,-1|-1,1>(1:1,~F:1:6,T:1,D:5,F:6,^114m)+
-// StreamZap  OLD {36k,msb,889}<1,-1|-1,1>(1:1,~F:1:6,T:1,D:6,F:6 // OLD changed to RC5-7F DAR Dec 2010 
+// StreamZap  OLD {36k,msb,889}<1,-1|-1,1>(1:1,~F:1:6,T:1,D:6,F:6 // OLD changed to RC5-7F DAR Dec 2010
 // RC5-7F      {36k,msb,889}<1,-1|-1,1>(1:1, D:1:5,T:1,D:5,F:7,^114m)+   NEW DAR Dec 2010
 // RC5x        {36k,msb,889}<1,-1|-1,1>(1:1,~S:1:6,T:1,D:5,-4,S:6,F:6,^114m)+
 //
@@ -3129,7 +3139,7 @@ void Signal::tryTDC() // GD 2009  Added tryTDC
         strcpy(pProtocol, "OrtekMCE");
         nNote_out = 6;
         //	changed next line to call "strcpy" (was "sprintf"), per instructions
-        //	by mathdon, for smoother compile in Unix environments--alex750		
+        //	by mathdon, for smoother compile in Unix environments--alex750
         strcpy(pMisc, FP == 3 && P == 1 ? "" :
                 FP == 2 && P == 1 ? (nNote_out = 5, nAuxNote_out = 1, "no start frame") :
                 FP == 1 && P == 1 ? (nNote_out = 0, nAuxNote_out = 6, "only end frame") :
@@ -3152,7 +3162,7 @@ void Signal::tryTDC() // GD 2009  Added tryTDC
 
 void Signal::tryCanalSat() // GD 2009  Added tryCanalSat
 
-// CanalSat		{55.5k,250,msb}<-1,1|1,-1>(T=0,(1,-1,D:7,S:6,T:1,0:1,F:7,-89m,T=1)+) 
+// CanalSat		{55.5k,250,msb}<-1,1|1,-1>(T=0,(1,-1,D:7,S:6,T:1,0:1,F:7,-89m,T=1)+)
 // where T=0 for the first frame and T=1 for all repeats
 // (PID = 018C)
 // CanalSatLD     {56k,320,msb}<-1,1|1,-1>(T=0,(1,-1,D:7,S:6,T:1,0:1,F:6,~F:1,-85m,T=1)+)  DAR Aug 2012
@@ -3166,7 +3176,7 @@ void Signal::tryCanalSat() // GD 2009  Added tryCanalSat
 // with C = (D:4+D:4:4+S:4+S:3:4+8*T+F:4+F:4:4+E)&15
  {
     int32_t HB;
-    static int32_t M = 0; // toggle mask or previous T	
+    static int32_t M = 0; // toggle mask or previous T
     int32_t T = 0; // toggle
     static int32_t FC = 0; // count of bypassed frames
     static int32_t confBits1to32 = 0; // DAR July 2011
@@ -3177,7 +3187,7 @@ void Signal::tryCanalSat() // GD 2009  Added tryCanalSat
         if (sortBurst.min3 < 570) {
             HB = 250;
         } else {
-            HB = 320; //DAR AUG 2012 add CanalSatLD                                       
+            HB = 320; //DAR AUG 2012 add CanalSatLD
         }
         if (*pFrame < HB * .5
                 || nMaxDur < .5 * HB
@@ -3185,7 +3195,7 @@ void Signal::tryCanalSat() // GD 2009  Added tryCanalSat
             return;
         }
     } else {
-        //if (nFreq > 46000)  //DAR March 2011 Some Amino is 36KHz  
+        //if (nFreq > 46000)  //DAR March 2011 Some Amino is 36KHz
         if (sortBurst.min3 < 600) //so use burst times instead
         {
             HB = 270;
@@ -3264,7 +3274,7 @@ void Signal::tryCanalSat() // GD 2009  Added tryCanalSat
             if (getMsb(62, 4) != (s & 15)) return;
             T = ((tmp1 ^ tmp2) & 0xFFFFFFF0); //mask off checksum nibble
             if ((T == 0x04000000) //Amino confirmed; also means subdevice and function codes match
-                    && (tmp1 & 0x04000000)) // repeat bit changed from 1 to 0, so tmp1 is a start frame 
+                    && (tmp1 & 0x04000000)) // repeat bit changed from 1 to 0, so tmp1 is a start frame
             {
                 AminoToggleDetected = true;
                 confBits1to32 = tmp1;
@@ -3274,7 +3284,7 @@ void Signal::tryCanalSat() // GD 2009  Added tryCanalSat
                 return; // wait for repeat to come round
             }
             if ((T == 0x00800000) //Zaptor confirmed; also shows subdevice and function codes match
-                    && (tmp2 & 0x00800000)) //repeat bit changed from 0 to 1, so tmp2 is an end frame 
+                    && (tmp2 & 0x00800000)) //repeat bit changed from 0 to 1, so tmp2 is an end frame
             {
                 ZaptorToggleDetected = true;
                 confBits1to32 = tmp1;
@@ -3315,8 +3325,8 @@ void Signal::tryCanalSat() // GD 2009  Added tryCanalSat
             confBits1to32 = getMsb(1, 32);
             int32_t tmp3 = confBits1to32 & 0x000000F0;
             if (tmp3 == 0xF0) HB = 270; //Amino decided by seed nibble
-            else if (tmp3 == 0x50) HB = 330; //Zaptor 
-        } //  else decide protocol by already determined HB duration 	
+            else if (tmp3 == 0x50) HB = 330; //Zaptor
+        } //  else decide protocol by already determined HB duration
         if (HB == 270) //Amino
         {
             *pDevice = (confBits1to32 >> 28) & 0xF;
@@ -3385,7 +3395,7 @@ void Signal::tryCanalSat() // GD 2009  Added tryCanalSat
 void Signal::trySejin() // GD 2009  Added trySejin
 // PID = 0161 (0161:3 for Sejin-1, 0161:5 for both Sejin-1 and Sejin-2 in one upgrade.)
 //
-// The Sejin protocols have two signal styles, Sejin-1 and Sejin-2, and two frequency 
+// The Sejin protocols have two signal styles, Sejin-1 and Sejin-2, and two frequency
 // variants, 38 and 56.  The signal styles have the following common structure:
 //
 // Sejin-M-38	{38.8k,310,msb}<-1|1>(<8:4|4:4|2:4|1:4>(3,3:2,Dx:8,Fx:8,Fy:8,E:4,C:4,-L))+
@@ -3394,11 +3404,11 @@ void Signal::trySejin() // GD 2009  Added trySejin
 // where E is a checksum seed (0 in all known examples) and C is the checksum given by
 // C = (Dx:4 + Dx:4:4 + Fx:4 + Fx:4:4 + Fy:4 + Fy:4:4 + E) & 15.
 //
-// Dx is a signed 8-bit integer, ie range -128 to +127. If Dx >= 0 the style is Sejin-1 and 
+// Dx is a signed 8-bit integer, ie range -128 to +127. If Dx >= 0 the style is Sejin-1 and
 // the leadout time L is 77m.  This style is used for normal remote-control buttons.  If
 // Dx < 0 the style is Sejin-2 and the leadout time L is the much shorter 3.6m.  This style is
 // used for signals corresponding to a pointing device with up to 3 buttons.  The short
-// leadout allows for much faster repeat action.  The signal parameters Dx, Fx, Fy have 
+// leadout allows for much faster repeat action.  The signal parameters Dx, Fx, Fy have
 // different significance in the two styles.
 //
 // The data parameters in Sejin-1 are 7-bit device and subdevice codes D and S, an 8-bit
@@ -3407,7 +3417,7 @@ void Signal::trySejin() // GD 2009  Added trySejin
 // parameters are:
 //             Dx = D, Fx:1:7 = T, Fx:7 = S, Fy = F.
 //
-// Sejin-2 has a 5-bit device code D and no subdevice code.  It further divides into 
+// Sejin-2 has a 5-bit device code D and no subdevice code.  It further divides into
 // two sub-styles, 2A corresponding to movement of the pointing device, and
 // 2B corresponding to movement of its buttons.  In Sejin-2A the data parameters are the
 // coordinates (X,Y) of the displacement of a cursor and the signal parameters are
@@ -3523,7 +3533,7 @@ void Signal::trySejin() // GD 2009  Added trySejin
         *pDevice = (64 - getMsb(2, 6));
         *pOBC = Fn2;
         Fn2 += getMsb(10, 8) ? 0x08 : 0; // flag set if X coord, clear if Y coord
-        Fn2 += Fn1 ? 0x10 : 0; // flag set if delta, clear if button down/up 
+        Fn2 += Fn1 ? 0x10 : 0; // flag set if delta, clear if button down/up
         strcpy(pProtocol, nFreq < 45000 ? "Sejin-2-38" : "Sejin-2-56");
         if (X == 0 && Y == 0 && *pOBC == 0) {
             sprintf(pMisc, "Btn up; E=%d, RMOBC=%d", getMsb(26, 4), Fn1 + 0x100 * Fn2);
@@ -3597,9 +3607,9 @@ void Signal::tryNokia()
     pHex[0] = *pOBC;
 }
 
-void Signal::tryF12() //  K=(D:3,H:1,F:8) {37.9k,422}<1,-3|3,-1>(K,-80,K) for H=0. 
-//{37.9k,422}<1,-3|3,-1>(K,-80,K,-208,K,-80,K)+ for H=1. 
-//F32:			//{38k,420, msb}<1,-3|3,-1>(D:8,S:8,F:8,E:8,-100m)* 
+void Signal::tryF12() //  K=(D:3,H:1,F:8) {37.9k,422}<1,-3|3,-1>(K,-80,K) for H=0.
+//{37.9k,422}<1,-3|3,-1>(K,-80,K,-208,K,-80,K)+ for H=1.
+//F32:			//{38k,420, msb}<1,-3|3,-1>(D:8,S:8,F:8,E:8,-100m)*
 {
     if (nFrameL != 12 && nFrameL != 32 || !framed(nMaxDur * 16))
         return;
@@ -3659,7 +3669,7 @@ void Signal::tryElan() // {40.2k,398,msb}<1,-1|1,-2>(3,-2,D:8,~D:8,2,-2,F:8,~F:8
     *pOBC = cmd;
 } // tryElan
 
-void Signal::tryBryston() //  {38.0k,315} <1,-6|6,-1>(D:10, F:8, -18)  //DAR 2012 
+void Signal::tryBryston() //  {38.0k,315} <1,-6|6,-1>(D:10, F:8, -18)  //DAR 2012
 {
     if (nFrameL != 18 || !framed(nMaxDur * 16))
         return;
@@ -3727,9 +3737,9 @@ bool Signal::processHumaxAtoms(int32_t bitStart, float* pFr, int32_t maxBursts) 
     return true;
 }
 
-void Signal::tryHumax() //  {56k,105, msb}<-2,2|-3,1|1,-3|2,-2>(T=0,(2,-2,D:7, S:5,T:2,F:6:1,(F:1+1):2),^95m,T=1)+) DAR 2012 
+void Signal::tryHumax() //  {56k,105, msb}<-2,2|-3,1|1,-3|2,-2>(T=0,(2,-2,D:7, S:5,T:2,F:6:1,(F:1+1):2),^95m,T=1)+) DAR 2012
 {
-    static int32_t M = 0; // toggle mask or previous T	
+    static int32_t M = 0; // toggle mask or previous T
     int32_t T;
     static int32_t FC = 0; // count of bypassed frames
     bool success;
@@ -3784,7 +3794,7 @@ void Signal::tryX10() {
     // <2,-13|7,-7>(8,-8,F:5,N:-4,23,-8,(8,-8, F:5, ~F:5, 23,-8)+)
     // where N is a 4-bit counter (incremented at each keypress, though that doesn't
     // show in the decode).  However, according to the UEI executor for
-    // the X10 protocol, PID 003F, the start frame should not have the (8,-8) 
+    // the X10 protocol, PID 003F, the start frame should not have the (8,-8)
     // leadin, so that frame is not picked up.  In addition, the UEI timing
     // is slightly different, which may be for convenience but it means that
     // the repeat frame of the UEI executor is also often not picked up.  UEI uses
@@ -3822,7 +3832,7 @@ void Signal::tryX10() {
     decodeX(11);
     int32_t obc = /* getLsb(1,5); */ getLsb(0, 6); // GD 2009 Covers both frame situations
     if (nFrameL == 12) {
-        if ((obc & 1) != 1) // GD 2009 Test lead-in bit 
+        if ((obc & 1) != 1) // GD 2009 Test lead-in bit
             return;
         pHex[0] = msb(obc); // GD 2009 Lead-in 1-bit is included in hex
         obc >>= 1; // GD 2009 Remove lead-in bit
@@ -4073,7 +4083,7 @@ void Signal::tryXMP() {
             tot += n;
             double s = (n + .501) / (*d); // Smallest scale that will increase digit nearest to scaled value for current burst by 1
             if (s < nextScale)
-                nextScale = s; // Smallest scale that will increase digit nearest to scaled value for some burst by 1 
+                nextScale = s; // Smallest scale that will increase digit nearest to scaled value for some burst by 1
             if ((--d) < dur || d == dur + 7) {
                 int32_t ch = (int32_t) tot - 8; // ch is 6*8 more than nibble sum, and 6*8 is masked out by the &15 below
                 tot = 0.;
@@ -4095,7 +4105,7 @@ void Signal::tryXMP() {
             do {
                 double x = (*d) * scale;
                 double n = floor(x + .5);
-                x -= n; // x is now error (between -0.5 and +0.4999) from true value 
+                x -= n; // x is now error (between -0.5 and +0.4999) from true value
                 if (x > high) // get the extreme error values
                 {
                     high = x;
@@ -4105,8 +4115,8 @@ void Signal::tryXMP() {
                 }
 
             } while ((--d) >= dur);
-            if (high + low >= -.0001) // If median error negative, scale can be increased a little. 
-                break; // Break if median error positive, or almost so.			
+            if (high + low >= -.0001) // If median error negative, scale can be increased a little.
+                break; // Break if median error positive, or almost so.
             double maxStep = 1.;
             d = dur + digitcnt - 1; //15;
             do // This calculates scale increase needed to bring
@@ -4148,7 +4158,7 @@ finished:
     float* pFrameStart2 = pFrameEnd + (nFrameL > 18 ? -17 : 1);
     float* pFrameEnd2 = pFrameStart2;
     for (; pFrameEnd2 < pMainLimit; pFrameEnd2++) {
-        if (pFrameEnd2 > pFrameEnd + 18 * (nFrameL <= 18) // Make sure we don't only get first half 
+        if (pFrameEnd2 > pFrameEnd + 18 * (nFrameL <= 18) // Make sure we don't only get first half
                 && *pFrameEnd2 > sortBurst.max2 * 3.
                 && *pFrameEnd2 > 8000.) break;
     };
@@ -4267,7 +4277,7 @@ finished:
                         // error is in check digit and the toggle nibble is 0
                         );
             }
-            // If error not yet resolved and 2nd half of 2nd frame has valid chksum, 
+            // If error not yet resolved and 2nd half of 2nd frame has valid chksum,
             // or smaller check digit, copy second half frame from 2nd frame
             if (c1
                     && (!c2
@@ -4301,7 +4311,7 @@ finished:
             && charcnt1[newchar^1] == 2
             && charcnt[newchar] == 0
             && charcntF2[newchar] == 0)) {
-        // The check nibble F appears to have coalesced with a single E in the first 
+        // The check nibble F appears to have coalesced with a single E in the first
         // half-frame, so correct the erroneous character.
         for (i = 0; i < 8; i++) {
             if (result[i] == (newchar^1) && (i == 3) == (newchar == 15)) result[i] = newchar;
@@ -4320,7 +4330,7 @@ finished:
             /*		&&	(	(chk1 == 0 && (chk2 == 1 || chk2 == 15))
                                     ||	(chk2 == 0 && (chk1 == 1 || chk1 == 15)) )*/
             ) {
-        // A correction is needed, as there are no missing digits and the checksum of 
+        // A correction is needed, as there are no missing digits and the checksum of
         // at least one half frame is out by 1.
 
         // Seek digits > 8 which occur more than once, so could be two values coalesced.
@@ -4329,7 +4339,7 @@ finished:
         // Test if this does not occur at all in the original data.
         // If all these conditions are met then this is a possible correction.
         // It is most likely to be correct for the largest digit meeting these conditions.
-        // Seek the largest such digit, if any, and if it exists, make the correction. 
+        // Seek the largest such digit, if any, and if it exists, make the correction.
 
         i = 15;
         while (i > 8
@@ -4436,7 +4446,7 @@ finished:
         // Code to check if there is a final frame with toggle nibble = 9
         // First get true length of repeat frames (we may be starting at a repeat frame)
         int32_t nFrameL3 = (nFirstFrame) ? digitcnt2 + 1 + (nFrameL2 <= 18) : digitcnt + 1 + (nFrameL <= 18);
-        //		int32_t nFrameL3 = digitcnt2 + 1 + (nFrameL2 <= 18);	
+        //		int32_t nFrameL3 = digitcnt2 + 1 + (nFrameL2 <= 18);
         float* f2 = (nFirstFrame) ? pFrameStart2 : pFrame;
         float* f3 = f2 + 2 * nFrameL3;
         //		float* pFrameStart3 = pFrameStart2 + 2*nFrameL3;
@@ -4450,7 +4460,7 @@ finished:
         while (f3 + i < pFullLimit - 2
                 && (// Bypass leadout before final frame if	leadouts missing elsewhere.
                 f3 += 2 * (nFrameL > 18 && i % (2 * nFrameL3) == 0 && f2[i + 1] < 8000. && f3[i + 1] > 8000.),
-                f2[i + 1] > 8000. && f3[i + 1] > 8000. // Both are lead-outs	
+                f2[i + 1] > 8000. && f3[i + 1] > 8000. // Both are lead-outs
                 || floor((f2[i] + f2[i + 1]) * bestScale - 6.5) // Digits match
                 == floor((f3[i] + f3[i + 1]) * bestScale - 6.5))
                 ) i += 2;
@@ -4591,7 +4601,7 @@ void Signal::tryZenith()
     if (nStyle == 0)
         return;
     if (nStyle == 1) {
-        // First burst and largest burst must both be 1,-10 
+        // First burst and largest burst must both be 1,-10
 
         if (sortBurst.max1 * (.9 * 10. / 11.) > pFrame[1])
             return;
@@ -4684,7 +4694,7 @@ int16_t Signal::moreBlaupunkt(int32_t bits) {
     return -1;
 }
 
-void Signal::tryXX() // {500}<-1,1|1,-1>((1,-5, 1:1, 
+void Signal::tryXX() // {500}<-1,1|1,-1>((1,-5, 1:1,
 {
     if (pFrameEnd[0] < sortBurst.max1) // Right hand framing
         return;
@@ -5119,7 +5129,7 @@ void Signal::tryAK() {
 
 void Signal::tryDirecTV() {
     // PID 0162
-    // GD:  The representation as 
+    // GD:  The representation as
     // {38.4k,601}<1,-1|1,-2|2,-1|2,-2>(10,-2,(D:4,F:8,C:4,1,-50,5,-2)+)
     // is missing "msb" and the freq of the 0162 executor is actually 38.1k.
     // A better representation is
@@ -5160,7 +5170,7 @@ void Signal::tryDirecTV() {
         strcpy(pProtocol, "DirecTV");
 
         // Report short/long lead-out based only on first frame, since final frame
-        // will always have a long lead-out.  Use of static variabl achieves this.  
+        // will always have a long lead-out.  Use of static variabl achieves this.
         static int32_t parm = (*pFrameEnd > 20000);
         parm &= 1;
         parm |= nFreq > 48000 ? 4 : nFreq > 39000 ? 0 : 2;
@@ -5384,7 +5394,7 @@ const char *(Protocols[]) ={
 
 //extern "C" {
 
-//This function takes a protocol number (1 based, and returns the protocol name 
+//This function takes a protocol number (1 based, and returns the protocol name
 //to the buffer provided by the calling application
 
 void _stdcall EnumerateProtocols(int32_t iProtocolNumber, char* TsProtocol) {
@@ -5411,11 +5421,11 @@ void _stdcall Version(char *Result) {
 }
 
 void DecodeIR_API DecodeIR
-(uint32_t* Context, //In/Out - Array of unsigned 4 byte integers.  For input it tells dll in what context it should 
+(uint32_t* Context, //In/Out - Array of unsigned 4 byte integers.  For input it tells dll in what context it should
         //decode the signal, and on output the context it would need to decode the next part of the signal.
         //It has a minimum length of 2, and on first call, both integers are 0.  Further information can
         //be passed in either direction by increasing its length.  See TiSubDevice below.
-        const microseconds_t* TpaiBursts, //In - Array of integers containing the burst lengths in microseconds, 
+        const microseconds_t* TpaiBursts, //In - Array of integers containing the burst lengths in microseconds,
         //the length of the array is 2*(TiSingleBurstCount + TiRepeatBurstCount +
         //ExtraBurstCount), where ExtraBurstCount is carried in TiDevice, see below.
         frequency_t TiFreq, //In - Frequency in Hz of the signal.  Use -1 for unknown.  Any positive
@@ -5442,7 +5452,7 @@ void DecodeIR_API DecodeIR
         int32_t* TiOBC, //Out - Integer OBC of the decoded signal
         int32_t* TaiHex, //Out - Array of 4 integers containing up to 4 different one-byte Hex commands
         //if returning less that 4 hex values, the remaining integers should be -1
-        char* TsMisc, //Out - 255 character string of Misc text, used whenever more explanation of 
+        char* TsMisc, //Out - 255 character string of Misc text, used whenever more explanation of
         //the results should be returned
         char* TsError) //Out - 255 character string containing an error message if the dll encountered an error
 {
