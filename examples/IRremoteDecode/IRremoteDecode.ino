@@ -1,6 +1,16 @@
 // This sketch uses the IRrevc class of IRremote (can be installed from Arduino
-// library manager). It reads IT signals with that class, and sends it 
+// library manager). It reads IR signals with that class, and sends it
 // to DecodeIR.
+
+// Of course, the library IRremote needs be installed to compile
+// and run this sketch.
+
+// Due to the shortcomings of the IRremote library, the decodes that
+// come out are not always really sensible.
+
+// This sketch uses the IRremote library because it is widely spread and known.
+// Please try my library Infrared (Infrared4Arduino) too (or instead).
+// It has some advantages...
 
 // Requires around 109236 bytes of program storage space, and 2538 of RAM.
 // Differently put, will not run on anything considerably smaller than
@@ -9,7 +19,7 @@
 #include <IRremote.h>
 #include <decodePrintIr.h>
 
-static const unsigned int RECV_PIN = 11;
+static const unsigned int RECV_PIN = 47;//11;
 
 static IRrecv irrecv(RECV_PIN);
 
@@ -21,12 +31,9 @@ void decode(decode_results* results) {
     microseconds_t buf[length];
     for (unsigned int i = 0; i < length - 1; i++) {
         buf[i] = USECPERTICK*results->rawbuf[i+1];
-        //Serial.print(buf[i]);
-        //Serial.print(" ");
     }
-    //Serial.println();
     buf[length-1] = 65000U;
-    
+
     decodePrintIr(Serial, buf, length/2);
 }
 
