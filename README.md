@@ -31,6 +31,13 @@ by `int32_t`, `unsigned int`s by `uint32_t`, and `char`s (used as numbers) by
 Also the dependence of `std::set` has been removed.
 (This was the only dependence of the standard C++ library.)
 
+## Dependencies
+The library proper does not depend on any other Arduino library.
+However, the examples do depend on [Infrared4Arduino](https://github.com/bengtmartensson/Infrared4Arduino),
+[IRremote](https://github.com/z3t0/Arduino-IRremote), and/or [LiquidCrystal_I2C](https://github.com/marcoschwartz/LiquidCrystal_I2C).
+
+Version 2.45.1 and 2.45.2 inadvertently depended on Infrared4Arduino for compilation.
+
 ## API
 The main file `DecodeIR[h,cpp]` has a single public entry point, `DecodeIR(...)`,
 documented in `DecodeIR.cpp` (line 5412ff in the current version). A slightly more
