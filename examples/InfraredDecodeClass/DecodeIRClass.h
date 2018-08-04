@@ -17,6 +17,12 @@
  * IR signal. This class presently only delivers the first decode.
  * Fixing this restriction is not completely straight-forward: a list/vector of
  * decodes should be returned.
+ *
+ * It depends on the library Infrared (Infrared4Arduino), by myself.
+ * It can be installed from the Arduino library manager.
+ *
+ * This file should _not_ reside in the src directory, because it makes the
+ * library depend on Infrared4Arduino.
  */
 
 class DecodeIRClass {
@@ -27,27 +33,23 @@ private:
     int32_t subdevice = -1;
     int32_t obc = -1;
     int32_t hex[4] = {-1, -1, -1, -1};
-    char misc_message[255];// = "";
-    char error_message[255];// = "";
-    char string1[255];
-    char string2[255];
-    
+    char misc_message[255];
+    char error_message[255];
+
     void init(const microseconds_t* data, size_t length, frequency_t frequency = IrSignal::defaultFrequency);
- 
+
 public:
     DecodeIRClass(const microseconds_t* data, size_t length, frequency_t frequency = IrSignal::defaultFrequency);
     DecodeIRClass(const IrSequence& irSequence, frequency_t frequency = IrSignal::defaultFrequency);
     virtual ~DecodeIRClass();
-    
+
     const char* getProtocol() const { return protocol; }
-    int32_t getDevice() const { return device; }
-    int32_t getSubDevice() const { return subdevice; }
-    int32_t getObc() const { return obc; }
+    int32_t getD() const { return device; }
+    int32_t getS() const { return subdevice; }
+    int32_t getF() const { return obc; }
     const int32_t *getHex() const { return hex; }
     const char* getMiscMessage() const { return misc_message; }
     const char* getErrorMessage() const { return error_message; }
-    const char* getString1() const { return string1; }
-    const char* getString2() const { return string2; }
 };
 
 #endif /* DECODEIRCLASS_H */

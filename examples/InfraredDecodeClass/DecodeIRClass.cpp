@@ -22,12 +22,6 @@ void DecodeIRClass::init(const microseconds_t* data, size_t length, frequency_t 
     DecodeIR(decodeir_context, data, frequency, length / 2, 0,
             protocol, &device, &subdevice, &obc, hex, misc_message,
             error_message);
-    if (subdevice >= 0)
-        snprintf(string1, 255, "%s %ld %ld %ld", protocol, device, subdevice, obc);
-    else
-        snprintf(string1, 255, "%s %ld %ld", protocol, device, obc);
-    
-    snprintf(string2, 255, "%s %s", misc_message, error_message);
 }
 
 DecodeIRClass::~DecodeIRClass() {
