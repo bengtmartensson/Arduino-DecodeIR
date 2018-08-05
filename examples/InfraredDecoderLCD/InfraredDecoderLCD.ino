@@ -3,7 +3,9 @@
 // It reads IR signals with that class, and sends it
 // to DecodeIRClass, which is an OO-encapsulation of DecodeIR.
 
-// It requires a demodulating sensor connected to pin RECEIVE_PIN.
+// It requires either a demodulating sensor connected to pin RECEIVE_PIN,
+// or a non-demodulating sensor (e.g. TSMP58000).
+// The latter is recommended.
 
 // Optionally, the decode is "printed" on an LCD display using the
 // LiquidCrystal_I2C library, version 1.1.2 or later.
@@ -11,6 +13,10 @@
 // Sketch uses 111722 bytes of program storage space.
 // Global variables use 2491 bytes (30%) of dynamic memory.
 // Will not run on anything considerably smaller than a Mega2560.
+
+// Define for using a non-demodulating sensor, instead of the traditional
+// modulating sensor, like a TSMP*.
+//#define NON_DEMODULATING_SENSOR
 
 // Define to have output printed to the Serial.
 #define USE_SERIAL
@@ -29,13 +35,19 @@
 #define ENDTIMEOUT 100U
 #define BEGINTIMEOUT 65535U
 
-#include <IrReceiverSampler.h>
 #include "DecodeIRClass.h"
+
+#ifdef NON_DEMODULATING_SENSOR
+#include <IrWidgetAggregating.h>
+#else
+#include <IrReceiverSampler.h>
+#endif
+
 #ifdef LCD
 #include <LiquidCrystal_I2C.h>
 #endif
 
-IrReceiver *receiver;
+IrReader *receiver;
 #ifdef LCD
 LiquidCrystal_I2C lcd(LCD_I2C_ADDRESS, LCD_COLUMNS, LCD_ROWS);
 #endif
@@ -57,7 +69,12 @@ void setup() {
     lcd.print(F("Waiting for signal."));
 #endif
 
-    receiver = IrReceiverSampler::newIrReceiverSampler(BUFFERSIZE, RECEIVE_PIN);
+    receiver =
+#ifdef NON_DEMODULATING_SENSOR
+            IrWidgetAggregating::newIrWidgetAggregating(BUFFERSIZE);
+#else
+            IrReceiverSampler::newIrReceiverSampler(BUFFERSIZE, RECEIVE_PIN);
+#endif
     receiver->setEndingTimeout(ENDTIMEOUT);
     receiver->setBeginningTimeout(BEGINTIMEOUT);
 }
@@ -71,7 +88,13 @@ void loop() {
     }
 
     IrSequence *irSequence = receiver->toIrSequence();
+#ifdef NON_DEMODULATING_SENSOR
+    frequency_t frequency = ((IrWidgetAggregating*) receiver)->getFrequency();
+    DecodeIRClass decoder(*irSequence, frequency);
+#else
     DecodeIRClass decoder(*irSequence);
+#endif
+
     delete irSequence;
     if (decoder.getProtocol()[0] == '\0') {
 #ifdef USE_SERIAL
@@ -98,6 +121,13 @@ void loop() {
         Serial.print(" ");
         Serial.print(decoder.getErrorMessage());
     }
+
+#ifdef NON_DEMODULATING_SENSOR
+    Serial.print(F("; freq="));
+    Serial.print(frequency);
+    Serial.print(F("Hz"));
+#endif
+
     Serial.println();
 #endif
 
@@ -121,5 +151,13 @@ void loop() {
     if (decoder.getErrorMessage()[0]) {
         lcd.print(decoder.getErrorMessage());
     }
-#endif
+
+#if defined(NON_DEMODULATING_SENSOR) && LCD_ROWS > 2
+    lcd.setCursor(0, 2);
+    lcd.print("Freq=");
+    lcd.print(frequency);
+    lcd.print("Hz");
+#endif //defined(NON_DEMODULATING_SENSOR) && LCD_ROWS > 2
+
+#endif // LCD
 }
