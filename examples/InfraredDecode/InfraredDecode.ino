@@ -1,8 +1,12 @@
-// This sketch uses the IrReceiverSampler class of Infrared4Arduino (can be installed from Arduino
-// library manager). It reads IR signals with that class, and sends it
+// This sketch uses the IrReceiverSampler class of Infrared4Arduino
+// (can be installed from Arduino library manager).
+// It reads IR signals with that class, and sends it
 // to DecodeIR.
 
 // It requires a demodulating sensor connected to pin RECEIVE_PIN.
+
+// For a more capable and practically more interesting program,
+// see InfraredDecoderLCD.
 
 // Sketch uses 111722 bytes of program storage space.
 // Global variables use 2491 bytes (30%) of dynamic memory.
