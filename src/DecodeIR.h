@@ -32,7 +32,7 @@
 typedef unsigned frequency_t;
 typedef unsigned microseconds_t;
 #else
-typedef uint16_t frequency_t;
+typedef uint32_t frequency_t;
 typedef uint16_t microseconds_t;
 #endif
 
