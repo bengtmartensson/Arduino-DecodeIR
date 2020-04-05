@@ -14,9 +14,9 @@
 // Global variables use 2491 bytes (30%) of dynamic memory.
 // Will not run on anything considerably smaller than a Mega2560.
 
-// Define for using a non-demodulating sensor, instead of the traditional
-// modulating sensor, like a TSMP*.
-//#define NON_DEMODULATING_SENSOR
+// Define for using a non-demodulating sensor.
+// Otherwise, a traditional // modulating sensor, like a TSMP* will be used.
+#define NON_DEMODULATING_SENSOR
 
 // Define to have output printed to the Serial.
 #define USE_SERIAL
@@ -29,7 +29,11 @@
 #define LCD_COLUMNS 20
 #define LCD_ROWS 4
 
+#ifdef NON_DEMODULATING_SENSOR
+#define RECEIVE_PIN 47U
+#else
 #define RECEIVE_PIN 5U
+#endif
 #define BUFFERSIZE 400U
 #define BAUD 115200
 #define ENDTIMEOUT 100U
