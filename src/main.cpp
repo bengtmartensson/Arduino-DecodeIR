@@ -46,8 +46,14 @@ int main(int argc, char* argv[]) {
     DecodeIRClass decoder(data, 2 * (intro_length + rep_length), frequency);
     if (decoder.getProtocol()[0] != '\0')
         std::cout
-            << decoder.getString1() << std::endl
-            << decoder.getString2() << std::endl;
+            << "protocol=" << decoder.getProtocol()
+        << "; D=" << decoder.getD()
+        << "; S=" << decoder.getS()
+        << "; F=" << decoder.getF()
+        << "; hex=" << decoder.getHex()
+        << "; misc=\"" << decoder.getMiscMessage()
+        << "\" error=\"" << decoder.getErrorMessage()
+        << "\"" << std::endl;
     else
         std::cout << "No decode" << std::endl;
 #else // !USECLASS
