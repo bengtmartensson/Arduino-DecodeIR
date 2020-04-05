@@ -18,6 +18,9 @@ CC=g++
 #WARN=-Wall -Wextra
 OPT=-O2
 
+# Get VERSION from the version in library.properties
+VERSION := $(subst version=,,$(shell grep version= library.properties))
+
 all: test
 
 clean:
@@ -37,3 +40,6 @@ tag:
 	git status
 	git tag -s -a Version-$(VERSION) -m "Tagging Version-$(VERSION)"
 	git push origin Version-$(VERSION)
+
+version:
+	@echo $(VERSION)
