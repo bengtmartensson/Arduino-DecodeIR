@@ -125,8 +125,8 @@ pDuration(NULL) {
 }
 
 Signal::~Signal() {
-    delete pDuration;
-    delete pSuffix;
+    delete [] pDuration;
+    delete [] pSuffix;
 }
 
 void Signal::setPreempt(int32_t prValue)
